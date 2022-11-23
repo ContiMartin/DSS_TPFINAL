@@ -40,7 +40,7 @@
                 <img src="static/fotoCredito.jpg" class="img-responsive" style="width:1200px !important; height:350px !important; border-radius: 15px;" alt="">
         </div>
         <h1 style="text-align: center; color: black; position: center;">Simulador de riesgo crediticio</h1>
-        <form method="POST" action="{{url_for('procesar')}}">
+        <form method="POST" action="{{url_for('procesar')}} " name= "myform">
             <!-- <div class="row g-3 align-items-center"> -->
             <div class="container p-5 my-7 border">
                 <div class="col-auto">
@@ -95,9 +95,6 @@
                     <label for="">Años de historial crediticio</label>
                     <input name="objetivo" id="objetivo" required type="text" placeholder="Años">
                 </div>
-
-
-                
 
                 <div class="col-auto">
                     <button type="button-ce" id="mostrar" value="1 Click" class="btn btn-success">Simular</button>
@@ -192,5 +189,22 @@
   </div>
 
 <!-- JavaScript Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous">
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="jquery.serializejson.js"></script>
+ 
+var formData = JSON.stringify($("#myForm").serializeArray());
+
+$.ajax({
+    type: "POST",
+    url: "serverUrl",
+    data: formData,
+    success: function(){},
+    dataType: "json",
+    contentType : "application/json"
+    });
+var obj = $('form').serializeJSON();
+var jsonString = JSON.stringify(obj);
+</script>
 </html>
+
