@@ -12,114 +12,20 @@
 
     <title>DSS 2022</title>
 
-    <script type='text/javascript' 
-    src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-        $("#mostrar2").fadeOut();
-        $("#mostrar").fadeIn();            
-
-        });
-
-        $(document).ready(function() {
-        $("#mostrar").click(function(event) {
-            if (id_torneo = null) {
-                
-            } else {
-                // $("#mostrar").fadeOut();
-                // $("#mostrar2").fadeIn();            
-            }
-        });
-        });
-    </script>
-
+   
 </head>
 <body>
     <div class="container-fluid p-5 bg-primary text-white text-center">
-        <img src="./static/fotoCredito.png" class="img-responsive" style="width:1200px !important; height:350px !important; border-radius: 15px;" alt="">
+        <img src="./static/fotoCredito.png" class="img-responsive" alt="">
     </div>
     </div>
-    <h1 style="text-align: center; color: black; position: center;">Simulacion para : {{nombreTorneo}}</h1>
+    <h1 style="text-align: center; color: black; position: center;">Simulacion para : {{name}}</h1>
+    <h2 class="text-center"> {{result}} </h2>
     
-    <div class="container p-5 my-9 border">
-        <h2>   - El tiempo efectivo o neto de juego, para el torneo fue de: </h2>
-        {{datos}}
-        <br>
-        <h2>   - Los tiempos efectivo por fechas, fueron de:</h2>
-        {{datos}}
-    </div>
-    
-<!-- The Modal -->
-<div class="modal" id="myModalGraficosTorneo">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-  
-        <!-- Modal Header -->
-        <div class="modal modal-xl">
-            <h4 class="modal-title">Graficos</h4>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-  
-        <!-- Modal body -->
-        <div class="modal-body">
-            <div>
-                asd
-            </div>
-        </div>
-
-        <!-- Modal footer -->
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-
-  <!-- The Modal -->
-<div class="modal" id="myModalGraficosFechas">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-  
-        <!-- Modal Header -->
-        <div class="modal modal-xl">
-            <h4 class="modal-title">Graficos</h4>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-  
-        <!-- Modal body -->
-        <div class="modal-body">
-            <div>
-                <center>
-                    <h1>asd</h1>
-                </center>
-                <div>
-                    asd
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal footer -->
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
+    <img src= {{image}} class="img-responsive" style="width:1200px !important; height:350px !important; border-radius: 15px;" alt="">
 
 <!-- BARRA DE ABAJO -->
 </body>
-<div class="container p-5 my-5 border">
-    <button type="button-center" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModalGraficosTorneo">
-        Grafico 1
-    </button>
-    <button type="button-center" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModalGraficosFechas">
-        Graficar 2
-    </button>
-</div>
 
 <div class="container-fluid p-12 bg-primary text-white text-center">
 <h >

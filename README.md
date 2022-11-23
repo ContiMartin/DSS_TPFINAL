@@ -15,4 +15,4 @@
 
 Modelo de predicción de Riesgo Crediticio
 
-Sistema de Soporte a la Toma de Decisiones
+Sistema de Soporte a la Toma de Decisionesssd

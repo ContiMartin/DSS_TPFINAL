@@ -36,13 +36,16 @@ Actividades
 
 ##Librerias 
     
+from tensorflow import keras
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout
 
 import pandas as pd
 import numpy as np
 from sklearn import tree
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, mean_absolute_percentage_error, r2_score, mean_squared_error, mean_absolute_error, classification_report,confusion_matrix
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import accuracy_score, mean_absolute_percentage_error, r2_score, mean_squared_error, mean_absolute_error, classification_report,confusion_matrix   
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.decomposition import PCA
 from sklearn.svm import SVC
@@ -50,11 +53,13 @@ from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn import neighbors
 from sklearn.manifold import TSNE
+import joblib
+from matplotlib import pyplot as plt
 
 from matplotlib import pyplot as plt
 
 
-class prueba():
+class modelado():
     datos = "credit_risk_dataset.csv"
     credit = ""
     X_train= 0 
@@ -102,6 +107,20 @@ class prueba():
         #muevo la columna loan_status al final 
         ## Ver si se deberia poner mas abajo en el codigo
         self.credit = self.credit[['person_age','person_income','person_home_ownership','person_emp_length','loan_intent','loan_grade','loan_amnt','loan_int_rate','loan_percent_income','cb_person_default_on_file','cb_person_cred_hist_length','loan_status']]
+        self.credit.rename(columns = {'person_age':'Edad'}, inplace = True)
+        self.credit.rename(columns = {'person_income':'Ingreso'}, inplace = True)
+        self.credit.rename(columns = {'person_home_ownership':'Prop_hipot_alq'}, inplace = True)
+        self.credit.rename(columns = {'person_emp_length':'Antigüedad'}, inplace = True)
+        self.credit.rename(columns = {'loan_intent':'Objetivo_préstamo'}, inplace = True)
+        self.credit.rename(columns = {'loan_grade':'Grado_préstamo'}, inplace = True)
+        self.credit.rename(columns = {'loan_amnt':'Monto_préstamo'}, inplace = True)
+        self.credit.rename(columns = {'loan_int_rate':'Tasa_interés'}, inplace = True)
+        self.credit.rename(columns = {'loan_status':'Estado_préstamo'}, inplace = True)
+        self.credit.rename(columns = {'loan_percent_income ':'Porcentaje_préstamo'}, inplace = True)
+        self.credit.rename(columns = {'cb_person_default_on_file':'En_mora_anteriormente'}, inplace = True)
+        self.credit.rename(columns = {'cb_person_cred_hist_length':'Años_historial_crediticio'}, inplace = True)
+        # credit.rename(columns = {'person_emp_length':'Antigüedad'}, inplace = True)
+        self.credit.head(10)
         #mostrar los primeros 10 datos
         #credit.head(10)
         #edad ingresos casa_propiedad empleo_longitud intención_préstamo grado_préstamo préstamo_amnt tasa_int_préstamo 
@@ -111,34 +130,36 @@ class prueba():
         # mappea cada elemento de la columna a un valor del dict 'd'
 
         m = {'EDUCATION': 0,'MEDICAL':1, 'VENTURE':2, 'PERSONAL':3, 'DEBTCONSOLIDATION':4, 'HOMEIMPROVEMENT':5 }
-        self.credit['loan_intent'] = self.credit['loan_intent'].map(m) 
+        self.credit['Objetivo_préstamo'] = self.credit['Objetivo_préstamo'].map(m) 
         
         m = {'RENT':0, 'MORTGAGE':1, 'OWN':2, 'OTHER':3}
-        self.credit['person_home_ownership'] = self.credit['person_home_ownership'].map(m) 
+        self.credit['Prop_hipot_alq'] = self.credit['Prop_hipot_alq'].map(m) 
         
         d = {'Y': 1, 'N': 0}
-        self.credit['cb_person_default_on_file'] = self.credit['cb_person_default_on_file'].map(d) 
+        self.credit['En_mora_anteriormente'] = self.credit['En_mora_anteriormente'].map(d) 
         
         d = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6,}
-        self.credit['loan_grade'] = self.credit['loan_grade'].map(d) 
+        self.credit['Grado_préstamo'] = self.credit['Grado_préstamo'].map(d) 
         
 
     def eliminarVacios(self):
-        #credit.dropna()
-        self.credit["loan_int_rate"]= self.credit["loan_int_rate"].fillna(0).astype(np.int64, errors='ignore')
-        self.credit["person_emp_length"]= self.credit["person_emp_length"].fillna(0).astype(np.int64, errors='ignore')
+        self.credit = self.credit.drop(self.credit[self.credit["Antigüedad"]==123].index)
+        self.credit = self.credit.drop(self.credit[self.credit["Antigüedad"]==144].index)
+        self.credit = self.credit.drop(self.credit[self.credit["Edad"]==123].index)
+        self.credit = self.credit.drop(self.credit[self.credit["Edad"]==144].index)
+        self.credit= self.credit.dropna()
+        # self.credit["Tasa_interés"]= self.credit["Tasa_interés"].fillna(0).astype(np.int64, errors='ignore')
+        # self.credit["Antigüedad"]= self.credit["Antigüedad"].fillna(0).astype(np.int64, errors='ignore')
 
 
     def escalarDatos(self):
-        min_max_scaler = MinMaxScaler()
-        l_values = self.credit[['loan_amnt']]
-        scaled_values = min_max_scaler.fit(l_values)
-        self.credit[['loan_amnt']]=min_max_scaler.transform(l_values)
+        
+        # from sklearn import preprocessing
 
-        min_max_scaler = MinMaxScaler()
-        l_values = self.credit[['person_income']]
-        scaled_values  = min_max_scaler.fit(l_values)
-        self.credit[['person_income']]=min_max_scaler.transform(l_values)
+        # scaler = preprocessing.StandardScaler()
+        # self.credit = scaler.fit_transform(self.credit)
+        
+        self.credit = (self.credit - self.credit.min())/(self.credit.max()- self.credit.min())
 
 
     def dividirModelo(self):
@@ -149,16 +170,21 @@ class prueba():
         #print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
 
     def limpiarDatos(self):
-        #self.cargaDeDatos()
         self.mapeoDatos()
         self.eliminarVacios()
+        # media = int(credit[['person_emp_length']].mean())
+        #credit[['person_emp_length']] = credit[['person_emp_length']].replace({123.0:media})
         self.escalarDatos()
         self.dividirModelo()
         print("listo")
 
-    def entrenarModelo(self):
-        pass
-
+    
+    def escalado (self):
+        ss = StandardScaler()
+        std_data = ss.fit_transform(self.credit)
+        #print('data is ',data)
+        print('after standard ',std_data)
+        return std_data
 
     def pca(self):         
         pca = PCA(n_components=2)
@@ -185,6 +211,10 @@ class prueba():
         y_pred = classifier.predict(self.X_test)
         print("reporte")
         print(classification_report(self.y_test, y_pred))
+        print(confusion_matrix(self.y_test, y_pred))
+        joblib.dump(self.modelos["svc"], 'svc.pkl') 
+        # # Guardo el modelo.
+
         #self.prediccionModelo(classifier)
         #curva rock scoref1 accurasi
         #print(classifier.fit(self.X_train, self.y_train))
@@ -201,17 +231,46 @@ class prueba():
         y_pred = dtc.predict(self.X_test)
         accuracy_score(self.y_test, y_pred)
         print(classification_report(self.y_test, y_pred))
+        print(confusion_matrix(self.y_test, y_pred))
+        joblib.dump(self.modelos["dtc"], 'dtc.pkl') 
+
     #                   Clasificador Random Forest
-   
+    def redNeuronal(self):
+        modelo = Sequential()
+        modelo.add(Dense(64, activation='relu', input_shape=(11,)))
+        #modelo.add(Dropout(0.5))
+        modelo.add(Dense(64, activation='relu'))
+        #modelo.add(Dropout(0.5))
+        modelo.add(Dense(1, activation='sigmoid'))
+        
+        #from tensorflow.keras.optimizers import Adam
+        modelo.compile(loss='binary_crossentropy',
+              optimizer='adam',
+              metrics=['accuracy'])
+        
+        print("Comenzando entrenamiento...")
+        models = modelo.fit(self.X_test, self.y_test, epochs=10, batch_size = 10)
+        self.modelos['redNeuronal'] = models
+        print("Modelo entrenado!")
+        
     def randomForest(self):
 
         rfc = RandomForestClassifier(n_estimators = 10, criterion = 'entropy', random_state = 0) # los parametros son opcionales
         rfc.fit(self.X_train, self.y_train)
         self.modelos["rfc"] = rfc
         y_pred = rfc.predict(self.X_test)
+        print("prediccion")
         print(accuracy_score(self.y_test, y_pred))
         print(classification_report(self.y_test, y_pred))
+        print(confusion_matrix(self.y_test, y_pred))
         #self.prediccionModelo(rfc)
+        joblib.dump(self.modelos["rfc"], 'rfc.pkl') 
+        
+
+        fig = plt.figure(figsize=(25,20))
+        _ = tree.plot_tree(rfc,   
+                   class_names=["Rejected","Hired"],
+                   filled=True)
 
 
     #                   Naive Bayes
@@ -219,10 +278,13 @@ class prueba():
 
         gnb = GaussianNB()
         gnb.fit(self.X_train, self.y_train)
-        self.modelos["dnb"] = gnb
+        self.modelos["gnb"] = gnb
         y_pred = gnb.predict(self.X_test)
         accuracy_score(self.y_test, y_pred)
+        print("Prediccion")
         print(classification_report(self.y_test, y_pred))
+        print(confusion_matrix(self.y_test, y_pred))
+        joblib.dump(self.modelos["gnb"], 'gnb.pkl') 
 
         #self.prediccionModelo(gnb)
 
@@ -241,10 +303,17 @@ class prueba():
         #y_pred = knn.predict(self.X_test)
         print("reporte")
         print(classification_report(self.y_test, y_pred))
+        print(confusion_matrix(self.y_test, y_pred)) 
+        joblib.dump(self.modelos["knn"], 'knn.pkl')
+
 
     def tsne(self):
         ## Prueba
         tsne = TSNE(n_components=2, learning_rate='auto',init='random', perplexity=3).fit_transform(self.X_test)
+         #self.prediccionModelo(pca)
+        print ('Relación de varianza explicada: ',tsne.explained_variance_ratio_)  
+        print ('Componentes que representan el vector X: ',tsne.components_)
+        
         #self.prediccionModelo(tsne)
 
 
@@ -281,7 +350,8 @@ class prueba():
         self.neighbors()
         self.tsne()
         
-    #persona= [[22,0.009173,0,123,3,3,1.000000,16,0.59,1,3]] 
+    #px 
+    persona = [[0.008065,0.000934,0.6666667,0.121951,0.0,0.66667,0.014493,0.321248,0.120482,0.0,0]]
     #persona= [[23,0.015177,0,2,2,0,1.000000,7,0.37,0,2]]
     # persona= [[23,0.018512,0,2,0,0,1.000000,7,0.30,0,4]]
     #pr.prediccion(pr.modelos['svc'],(persona))
@@ -293,7 +363,11 @@ class prueba():
         else:
             print("Apto")
 
-
+    def prediccion2(self, modelo):
+        predictions = (modelo.predict(X) > 0.5).astype(int)
+        # summarize the first 20 cases
+        for i in range(20):
+	        print('%s => %d (expected %d)' % (X[i].tolist(), predictions[i], y[i]))
 
 #main()
 
